@@ -1,0 +1,8 @@
+{
+  "short_name": "Tribe",
+  "name": "Tribe",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

@@ -1,0 +1,15 @@
+#map{
+    position: fixed;
+    top: 0;
+    width: 100vw;
+    height: 105vh;
+    z-index: -1;
+    div.Marker{
+        width: 360px;
+        height: 360px;
+        background: yellow;
+        border-radius: 360px;
+        filter: blur(72px);
+        mix-blend-mode: multiply;
+    }
+}

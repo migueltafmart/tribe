@@ -1,0 +1,14 @@
+nav.Menu{
+    position: fixed;
+    top: 24px;
+    left: 12px;
+    width: 36px;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    background: dodgerblue;
+    border-radius: 12px;
+    button.material-icons{
+        font-size: 36px;
+    }
+}

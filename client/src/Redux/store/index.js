@@ -34,7 +34,7 @@ const initialState = {
     email:null,
     __v: null
   },
-  session_cookie: null,
+  auth_cookie: null,
   menu:false
 };
 const STORE = createStore(

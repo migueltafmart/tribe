@@ -24,7 +24,6 @@ const LoginMain = () => {
           },
         })
         .then((payload) => {
-          console.log(payload.data);
           if (typeof payload.data === "string") {
             STORE.dispatch(setLoginEmail(""));
             STORE.dispatch(setLoginPwd(""));
@@ -33,7 +32,7 @@ const LoginMain = () => {
             STORE.dispatch(setUser(payload.data));
             STORE.dispatch(setLoginEmail(""));
             STORE.dispatch(setLoginPwd(""));
-            STORE.dispatch(setCookie(new Cookies().get("session_cookie")));
+            STORE.dispatch(setCookie(new Cookies().get("auth_cookie")));
           }
         })
         .catch((e) => console.log(e));

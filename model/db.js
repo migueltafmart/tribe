@@ -8,14 +8,27 @@ mongoose
     useFindAndModify: false,
     useCreateIndex: true,
   })
-  .then(() => "You are now connected to Mongo!")
+  .then(() => console.log("Database ready."))
   .catch((err) => console.error("Something went wrong", err));
+
+const pointSchema = new mongoose.Schema({
+  
+});
 
 const userSchema = new mongoose.Schema({
   displayName: { type: String, required: true },
   age: { type: String, required: true },
   gender: String,
-  location: Array,
+  location: {
+    type: {
+      type: String,
+      enum: ["Feature"],
+      required: true,
+    },
+    geometry: {type: { type: String, enum: "Point", required: true },
+    coordinates: { type: [Number], required: true },},
+    properties: { color: { type: String } },
+  },
   socket: { type: String, default: null },
   locationHistory: Array,
   socketHistory: Array,
@@ -33,7 +46,7 @@ exports.signUp = async ({ displayName, age, gender, location, email, pwd }) => {
     (displayName.length > 0 &&
       age > 18 &&
       gender.length > 0 &&
-      location.lenght === 2 &&
+      location &&
       email.length > 0,
     pwd.length > 0)
   ) {
@@ -52,11 +65,9 @@ exports.signUp = async ({ displayName, age, gender, location, email, pwd }) => {
 };
 
 exports.logIn = async ({ email, pwd }) => {
-  console.log(email && pwd);
   if (email.length > 0 && pwd.length > 0) {
-    const [user] = await User.find({ email: email });
+    const user = await User.findOne({ email: email });
     if (user.hashPwd === crypto.createHash("md5").update(pwd).digest("hex")) {
-      console.log(user);
       return user;
     } else {
       return "Wrong email or password";
@@ -66,9 +77,9 @@ exports.logIn = async ({ email, pwd }) => {
   }
 };
 exports.updateUser = async ({ _id, socket, location }) => {
-  if (_id.length > 0 && socket.length > 0 && location.length === 2) {
+  if (_id.length > 0 && socket.length > 0 && location) {
     try {
-      const user = await User.findById({ _id: _id });
+      const user = await User.findById(_id);
       const result = await User.findByIdAndUpdate(_id, {
         socket: socket,
         location: location,
@@ -84,6 +95,7 @@ exports.updateUser = async ({ _id, socket, location }) => {
           location,
         ],
       });
+      console.log(result)
       return result;
     } catch (e) {
       console.log(e);
@@ -92,4 +104,22 @@ exports.updateUser = async ({ _id, socket, location }) => {
   } else {
     return null;
   }
+};
+
+exports.getUsersNearBy = async (_id, location) => {
+  User.find({
+    _id: { $ne: _id },
+    location: {
+      $near: {
+        $maxDistance: 100,
+        $geometry: {
+          type: "Point",
+          coordinates: location,
+        },
+      },
+    },
+  }).find((error, results) => {
+    if (error) console.log(error);
+    console.log(JSON.stringify(results, 0, 2));
+  });
 };

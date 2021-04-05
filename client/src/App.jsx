@@ -9,7 +9,7 @@ import { setCookie, setUser } from "./Redux/actions";
 import axios from "axios";
 function App() {
   useEffect(() => {
-    const sessionCookie = new Cookies().get("session_cookie");
+    const sessionCookie = new Cookies().get("auth_cookie");
     if (sessionCookie) {
       STORE.dispatch(setCookie(sessionCookie));
       axios
@@ -20,12 +20,15 @@ function App() {
             port: 8080,
           },
         })
-        .then((response) => STORE.dispatch(setUser(response.data)))
-        .catch((err)=>console.log(err));
+        .then((response) => {
+          console.log(response.data)
+          STORE.dispatch(setUser(response.data))})
+        .catch((err) => console.log(err));
     }
   }, []);
   const currentLocation = STORE.getState().user.location;
   const currentSocket = STORE.getState().user.socket;
+
   useEffect(() => {
     if (currentLocation && currentSocket && STORE.getState().user._id) {
       const body = {
@@ -48,18 +51,14 @@ function App() {
     <>
       <Switch>
         <Route path="/" exact>
-          {STORE.getState().session_cookie ? (
+          {STORE.getState().auth_cookie ? (
             <MainChatPage />
           ) : (
             <Redirect to="/login" />
           )}
         </Route>
         <Route path="/login" exact>
-          {!STORE.getState().session_cookie ? (
-            <LoginPage />
-          ) : (
-            <Redirect to="/" />
-          )}
+          {!STORE.getState().auth_cookie ? <LoginPage /> : <Redirect to="/" />}
         </Route>
       </Switch>
     </>

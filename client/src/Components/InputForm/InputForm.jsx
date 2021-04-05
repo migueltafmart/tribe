@@ -11,7 +11,6 @@ import {
 } from "../../Redux/actions";
 import "./InputForm.scss";
 const InputForm = ({ socket }) => {
-
   const colorPicker = STORE.getState().colorPicker;
   const color = STORE.getState().color;
   const onLongPress = () => {
@@ -32,11 +31,13 @@ const InputForm = ({ socket }) => {
   const message = (e) => {
     e.preventDefault();
     const msg = {
-      user: {socket:STORE.getState().user.socket, id:STORE.getState().user._id},
+      user: {
+        socket: STORE.getState().user.socket,
+        id: STORE.getState().user._id,
+      },
       mssg: STORE.getState().message,
       timestamp: new Date(),
-      location: STORE.getState().location,
-      color: STORE.getState().color,
+      location: STORE.getState().user.location,
     };
     if (STORE.getState().message.length > 0) {
       socket.emit("chat message", msg);

@@ -18,7 +18,7 @@ exports.signUp = async (req, res) => {
           process.env.COOKIE_TOKEN_SECRET
         );
         res
-          .cookie("session_cookie", token, {
+          .cookie("auth_cookie", token, {
             maxAge: 60 * 60 * 24 * 5 * 1000,
           })
           .status(status)
@@ -30,12 +30,12 @@ exports.signUp = async (req, res) => {
   }
 };
 exports.logIn = async (req, res) => {
-  console.log(req.body);
   if (req.body) {
     let response;
     let status = 200;
     try {
       response = await db.logIn(req.body);
+      console.log(response);
     } catch (e) {
       status = 400;
       response = "Something went wrong";
@@ -48,7 +48,7 @@ exports.logIn = async (req, res) => {
           process.env.COOKIE_TOKEN_SECRET
         );
         res
-          .cookie("session_cookie", token, {
+          .cookie("auth_cookie", token, {
             maxAge: 60 * 60 * 24 * 5 * 1000,
           })
           .status(status)
@@ -59,24 +59,8 @@ exports.logIn = async (req, res) => {
     res.status(400);
   }
 };
-exports.onReload = async (req, res, next) => {
-  if (req.cookies.session_cookie) {
-    jwt.verify(
-      req.cookies.session_cookie,
-      process.env.COOKIE_TOKEN_SECRET,
-      (err, data) => {
-        if (err) {
-          return res.status(403);
-        } else {
-          return res.status(200).json(data);
-        }
-      }
-    );
-  }
-};
 
 exports.updateUser = async (req, res) => {
-  console.log(req.body)
   if (req.body) {
     let response;
     let status = 200;
@@ -86,26 +70,49 @@ exports.updateUser = async (req, res) => {
       status = 400;
       response = "Something went wrong";
     } finally {
-      if(response !== null || typeof response !== "string"){
-        const token = jwt.sign(
+      const token = jwt.sign(
         JSON.stringify(response),
         process.env.COOKIE_TOKEN_SECRET
       );
       res
-        .cookie("session_cookie", token, {
-          maxAge: 60 * 60 * 24 * 5 * 1000,
-        })
-        .status(status);
-      res
-        .cookie("session_cookie", token, {
+        .cookie("auth_cookie", token, {
           maxAge: 60 * 60 * 24 * 5 * 1000,
         })
         .status(status)
         .json(response);
     }
-      }
-      
   } else {
     res.status(400);
+  }
+};
+
+exports.claims = async (req, res, next) => {
+  if (req.cookies.auth_cookie) {
+    jwt.verify(
+      req.cookies.auth_cookie,
+      process.env.COOKIE_TOKEN_SECRET,
+      (err, data) => {
+        if (err) {
+          return res.status(403);
+        } else {
+          next();
+        }
+      }
+    );
+  }
+};
+exports.onReload = async (req, res) => {
+  if (req.cookies.auth_cookie) {
+    jwt.verify(
+      req.cookies.auth_cookie,
+      process.env.COOKIE_TOKEN_SECRET,
+      (err, data) => {
+        if (err) {
+          return res.status(403);
+        } else {
+          return res.status(200).json(data);
+        }
+      }
+    );
   }
 };

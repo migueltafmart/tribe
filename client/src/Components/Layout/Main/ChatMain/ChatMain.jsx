@@ -35,7 +35,7 @@ const ChatMain = () => {
         <div className="wrapper">
           {STORE.getState().messageList.length > 0 ? (
             STORE.getState().messageList.map((mssg, i) =>
-              mssg.user.socket === socket.id ? (
+              mssg.user.id === STORE.getState().user._id ? (
                 <Mssg key={`message-${i}`} self mssg={mssg} color={color} />
               ) : (
                 <Mssg key={`message-${i}`} mssg={mssg} />

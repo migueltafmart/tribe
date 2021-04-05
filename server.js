@@ -1,4 +1,8 @@
-require("cors")({ origin: "http://localhost:3000" });
+require("cors")({
+  origin: "http://localhost:3000",
+  credentials: true,
+  optionsSuccessStatus: 200,
+});
 const express = require("express"),
   app = express(),
   httpServer = require("http").createServer(app),
@@ -6,13 +10,24 @@ const express = require("express"),
   routes = require("./controllers/routes"),
   io = require("socket.io")(httpServer),
   dotenv = require("dotenv"),
-  cors = require("cors"),
-  cookieParser = require("cookie-parser");
+  morgan = require("morgan"),
+  chalk = require("chalk");
+cookieParser = require("cookie-parser");
 dotenv.config();
 
 const PORT = process.env.PORT || 8080;
+
+app.use(
+  morgan((tokens, req, res) => {
+    return [
+      chalk.hex("#34ace0").bold(tokens.method(req, res)),
+      chalk.hex("#ffb142").bold(tokens.status(req, res)),
+      chalk.hex("#ff5252").bold(tokens.url(req, res)),
+      chalk.hex("#2ed573").bold(tokens["response-time"](req, res) + " ms"),
+    ].join(" ");
+  })
+);
 app.use(cookieParser());
-app.use(cors({ credentials: true, origin: "http://localhost:3000", optionsSuccessStatus: 200 }));
 app.use(express.json());
 app.use("/", express.static("./public/"));
 //* Routes
@@ -23,6 +38,12 @@ app.use(routes);
 }); */
 //* Socket.io
 io.on("connection", (socket) => {
+  //? Get all users near me (100m)
+  //? usersNearBy.map(user =>{
+  //?   socket.on("chat message",(msg)=>{
+  //?     socket.broadcast.to(user.socket).emit("chat message", msg)
+  //?   })
+  //?})
   console.log(
     "user connected using socket:",
     socket.id,

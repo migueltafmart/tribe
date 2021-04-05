@@ -18,7 +18,7 @@ const REDUCER = (state, action) => {
     case "SET_LOCATION":
       return {
         ...state,
-        user: { ...state.user, location: action.payload.location },
+        user: { ...state.user, location: {...state.user.location, geometry:action.payload.location} },
       };
     case "SEND_MESSAGE":
       return {
@@ -59,7 +59,7 @@ const REDUCER = (state, action) => {
     case "SET_SESSION_COOKIE":
       return {
         ...state,
-        session_cookie: action.payload.cookie,
+        auth_cookie: action.payload.cookie,
       };
     case "SET_SOCKET":
       return {

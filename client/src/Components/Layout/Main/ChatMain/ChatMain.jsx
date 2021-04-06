@@ -8,17 +8,19 @@ import "./ChatMain.scss";
 
 const ChatMain = () => {
   const messageList = STORE.getState().messageList;
-  const color = STORE.getState().color;
+  const color = STORE.getState().user.color;
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     socket.open()
     socket.on("connect", () => {
+
       STORE.dispatch(setSocket(socket));
     });
     socket.on("chat message", (mssg) => {
       STORE.dispatch(sendMessage(mssg, STORE.getState().messageList));
     });
+    return () => socket.close()
   }, []);
 
   useEffect(() => {

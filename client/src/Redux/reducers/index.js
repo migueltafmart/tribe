@@ -1,9 +1,14 @@
+import { initialState } from "../store";
+
 const REDUCER = (state, action) => {
   switch (action.type) {
     case "SET_COLOR":
       return {
         ...state,
-        color: action.payload.color,
+        user: {
+          ...state.user,
+          color: action.payload.color,
+        },
       };
     case "REMOVE_COLOR":
       return {
@@ -18,7 +23,10 @@ const REDUCER = (state, action) => {
     case "SET_LOCATION":
       return {
         ...state,
-        user: { ...state.user, location: {...state.user.location, geometry:action.payload.location} },
+        user: {
+          ...state.user,
+          location: action.payload.location,
+        },
       };
     case "SEND_MESSAGE":
       return {
@@ -70,6 +78,20 @@ const REDUCER = (state, action) => {
       return {
         ...state,
         menu: action.payload.menu,
+      };
+    case "USER_ENTERED":
+      return {
+        ...state,
+        nearby: [...state.nearby, action.payload.nearby],
+      };
+    case "USER_LEFT":
+      return {
+        ...state,
+        nearby: [state.nearby.filter((v) => v !== action.payload.nearby)],
+      };
+    case "RESET_STATE":
+      return {
+        ...initialState,
       };
     default:
       return state;

@@ -35,12 +35,12 @@ exports.logIn = async (req, res) => {
     let status = 200;
     try {
       response = await db.logIn(req.body);
-      console.log(response);
     } catch (e) {
       status = 400;
       response = "Something went wrong";
     } finally {
       if (typeof response !== "object") {
+        console.log(response);
         res.status(status).json(response);
       } else {
         const token = jwt.sign(
@@ -61,11 +61,11 @@ exports.logIn = async (req, res) => {
 };
 
 exports.updateUser = async (req, res) => {
-  if (req.body) {
+  if (req.params.action && req.body) {
     let response;
     let status = 200;
     try {
-      response = await db.updateUser(req.body);
+      response = await db.updateUser(req.params.action, req.body);
     } catch (e) {
       status = 400;
       response = "Something went wrong";

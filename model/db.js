@@ -8,26 +8,16 @@ mongoose
     useFindAndModify: false,
     useCreateIndex: true,
   })
-  .then(() => console.log("Database ready."))
+  .then(() => console.log("Database running"))
   .catch((err) => console.error("Something went wrong", err));
-
-const pointSchema = new mongoose.Schema({
-  
-});
 
 const userSchema = new mongoose.Schema({
   displayName: { type: String, required: true },
   age: { type: String, required: true },
   gender: String,
   location: {
-    type: {
-      type: String,
-      enum: ["Feature"],
-      required: true,
-    },
-    geometry: {type: { type: String, enum: "Point", required: true },
-    coordinates: { type: [Number], required: true },},
-    properties: { color: { type: String } },
+    type: { type: String, enum: "Point", required: true },
+    coordinates: { type: [Number], required: true },
   },
   socket: { type: String, default: null },
   locationHistory: Array,
@@ -37,11 +27,13 @@ const userSchema = new mongoose.Schema({
   hashPwd: { type: String, required: true },
   strikes: { type: Number, default: 0 },
   lastUpdated: { type: Date, default: Date.now() },
+  color: { type: String, default: "black" },
 });
+userSchema.index({ location: "2dsphere" });
+
 const User = mongoose.model("User", userSchema);
 
 exports.signUp = async ({ displayName, age, gender, location, email, pwd }) => {
-  console.log(displayName, age, gender, location, email, pwd);
   if (
     (displayName.length > 0 &&
       age > 18 &&
@@ -68,7 +60,14 @@ exports.logIn = async ({ email, pwd }) => {
   if (email.length > 0 && pwd.length > 0) {
     const user = await User.findOne({ email: email });
     if (user.hashPwd === crypto.createHash("md5").update(pwd).digest("hex")) {
-      return user;
+      return {
+        _id: user._id,
+        location: user.location,
+        socket: user.socket,
+        strikes: user.strikes,
+        lastUpdated: user.lastUpdated,
+        color: user.color,
+      };
     } else {
       return "Wrong email or password";
     }
@@ -76,38 +75,75 @@ exports.logIn = async ({ email, pwd }) => {
     return null;
   }
 };
-exports.updateUser = async ({ _id, socket, location }) => {
-  if (_id.length > 0 && socket.length > 0 && location) {
-    try {
-      const user = await User.findById(_id);
-      const result = await User.findByIdAndUpdate(_id, {
-        socket: socket,
-        location: location,
-        socketHistory: [
-          ...user.socketHistory.filter((e, i, a) => a.indexOf(e) === i),
-          socket,
-        ],
-        locationHistory: [
-          ...Array.from(
-            new Set(user.locationHistory.map(JSON.stringify)),
-            JSON.parse
-          ),
-          location,
-        ],
-      });
-      console.log(result)
-      return result;
-    } catch (e) {
-      console.log(e);
+
+exports.updateUser = async (method, { _id, socket, location, color }) => {
+  switch (method) {
+    case "location":
+      if (_id.length > 0 && location) {
+        const user = await User.findById(_id);
+        await User.findByIdAndUpdate(_id, {
+          lastUpdated: Date.now(),
+          location: location,
+          locationHistory: [
+            ...Array.from(
+              new Set(user.locationHistory.map(JSON.stringify)),
+              JSON.parse
+            ),
+            location,
+          ],
+        });
+        return {
+          _id: user._id,
+          location: location,
+          socket: user.socket,
+          strikes: user.strikes,
+          lastUpdated: user.lastUpdated,
+          color: user.color,
+        };
+      }
+    case "socket":
+      if (_id.length > 0 && socket) {
+        const user = await User.findById(_id);
+        await User.findByIdAndUpdate(_id, {
+          lastUpdated: Date.now(),
+          socket: socket,
+          socketHistory: [
+            ...user.socketHistory.filter((e, i, a) => a.indexOf(e) === i),
+            socket,
+          ],
+        });
+        return {
+          _id: user._id,
+          location: user.location,
+          socket: socket,
+          strikes: user.strikes,
+          lastUpdated: user.lastUpdated,
+          color: user.color,
+        };
+      }
+    case "color":
+      if (_id.length > 0 && color) {
+        const user = await User.findById(_id);
+        await User.findByIdAndUpdate(_id, {
+          lastUpdated: Date.now(),
+          color: color,
+        });
+        return {
+          _id: user._id,
+          location: user.location,
+          socket: user.socket,
+          strikes: user.strikes,
+          lastUpdated: user.lastUpdated,
+          color: color,
+        };
+      }
+    default:
       return null;
-    }
-  } else {
-    return null;
   }
 };
 
 exports.getUsersNearBy = async (_id, location) => {
-  User.find({
+  const result = await User.find({
     _id: { $ne: _id },
     location: {
       $near: {
@@ -118,8 +154,24 @@ exports.getUsersNearBy = async (_id, location) => {
         },
       },
     },
-  }).find((error, results) => {
-    if (error) console.log(error);
-    console.log(JSON.stringify(results, 0, 2));
   });
+  return result.map((user) => {
+    return {
+      user: { socket: user.socket, id: user._id },
+      location: user.location,
+      color: user.color,
+    };
+  });
+};
+
+exports.logOut = async (_id) => {
+  const result = await User.findByIdAndUpdate(_id, {
+    socket: null,
+    location: {
+      type: "Point",
+      coordinates: [0, 0],
+    },
+    color: "black",
+  });
+  return result;
 };

@@ -63,6 +63,15 @@ const setSocket = (connection) =>{
 const setMenu = (bool) =>{
   return{type: "SET_MENU", payload:{menu:bool}}
 }
+const userNear = (user) =>{
+  return {type:"USER_ENTERED", payload:{nearby:user}}
+}
+const userLeft = (user) =>{
+  return {type:"USER_LEFT", payload:{nearby:user}}
+}
+const resetState = () =>{
+  return {type:"RESET_STATE"}
+}
 export {
   setColor,
   removeColor,
@@ -76,5 +85,8 @@ export {
   setUser,
   setCookie,
   setSocket,
-  setMenu
+  setMenu,
+  userNear,
+  userLeft,
+  resetState
 };

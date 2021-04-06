@@ -1,28 +1,32 @@
 #map {
   position: fixed;
   top: 0;
-  width: 112vw;
+  width: 100vw;
   height: 112vh;
   z-index: -1;
   overflow: hidden;
   div.Marker {
-    width: 657px;
-    height: 657px;
-    background: rgba(43, 255, 1, 0.726);
+    width: 757px;
+    height: 757px;
+    background: black;
     opacity: 0.75;
-    border-radius: 657px;
+    border-radius: 857px;
     filter: blur(48px);
-    margin:-1px;
+    margin: -1px;
     padding: -1px;
     mix-blend-mode: color-burn;
+    &:first-of-type {
+      width: 6px;
+      height: 6px;
+    }
     &:nth-of-type(2) {
       background: rgb(223, 0, 223);
     }
     &:nth-of-type(3) {
-      background: rgb(0, 204, 204);
+      background: rgb(204, 201, 0);
     }
     &:nth-of-type(4) {
-      background: pink;
+      background: rgb(39, 248, 255);
     }
   }
 }

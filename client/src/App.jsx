@@ -8,6 +8,9 @@ import Cookies from "universal-cookie";
 import { setCookie, setUser } from "./Redux/actions";
 import axios from "axios";
 function App() {
+  const currentLocation = STORE.getState().user.location;
+  const currentSocket = STORE.getState().user.socket;
+  const currentColor = STORE.getState().user.color;
   useEffect(() => {
     const sessionCookie = new Cookies().get("auth_cookie");
     if (sessionCookie) {
@@ -21,23 +24,20 @@ function App() {
           },
         })
         .then((response) => {
-          console.log(response.data)
-          STORE.dispatch(setUser(response.data))})
+          STORE.dispatch(setUser(response.data));
+        })
         .catch((err) => console.log(err));
     }
   }, []);
-  const currentLocation = STORE.getState().user.location;
-  const currentSocket = STORE.getState().user.socket;
 
   useEffect(() => {
-    if (currentLocation && currentSocket && STORE.getState().user._id) {
+    if (currentLocation.coordinates !== [0, 0] && STORE.getState().user._id) {
       const body = {
         _id: STORE.getState().user._id,
         location: currentLocation,
-        socket: currentSocket,
       };
       axios
-        .post("/api/update", body, {
+        .post("/api/update/location", body, {
           withCredentials: true,
           proxy: {
             host: "192.168.1.19",
@@ -46,7 +46,41 @@ function App() {
         })
         .catch((err) => console.log(err));
     }
-  }, [currentLocation, currentSocket]);
+  }, [currentLocation]);
+  useEffect(() => {
+    if (currentSocket !== null && STORE.getState().user._id) {
+      const body = {
+        _id: STORE.getState().user._id,
+        socket: currentSocket,
+      };
+      axios
+        .post("/api/update/socket", body, {
+          withCredentials: true,
+          proxy: {
+            host: "192.168.1.19",
+            port: 8080,
+          },
+        })
+        .catch((err) => console.log(err));
+    }
+  }, [currentSocket]);
+  useEffect(() => {
+    if (currentColor !== null && STORE.getState().user._id) {
+      const body = {
+        _id: STORE.getState().user._id,
+        color: currentColor,
+      };
+      axios
+        .post("/api/update/color", body, {
+          withCredentials: true,
+          proxy: {
+            host: "192.168.1.19",
+            port: 8080,
+          },
+        })
+        .catch((err) => console.log(err));
+    }
+  }, [currentColor]);
   return (
     <>
       <Switch>

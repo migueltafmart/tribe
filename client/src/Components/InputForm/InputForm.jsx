@@ -12,7 +12,7 @@ import {
 import "./InputForm.scss";
 const InputForm = ({ socket }) => {
   const colorPicker = STORE.getState().colorPicker;
-  const color = STORE.getState().color;
+  const color = STORE.getState().user.color;
   const onLongPress = () => {
     if (color !== "black") {
       STORE.dispatch(setColor("black"));
@@ -38,6 +38,7 @@ const InputForm = ({ socket }) => {
       mssg: STORE.getState().message,
       timestamp: new Date(),
       location: STORE.getState().user.location,
+      color: color
     };
     if (STORE.getState().message.length > 0) {
       socket.emit("chat message", msg);
@@ -50,7 +51,7 @@ const InputForm = ({ socket }) => {
       {colorPicker ? <ColorPicker /> : <></>}
       <div
         className="wrapper"
-        style={{ borderBottom: `3px solid ${STORE.getState().color}` }}
+        style={{ borderBottom: `3px solid ${STORE.getState().user.color}` }}
       >
         <input
           autoComplete="off"

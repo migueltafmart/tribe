@@ -1,7 +1,6 @@
 import { createStore } from "redux";
 import { REDUCER } from "../reducers";
 const initialState = {
-  color: "black",
   clusterColors: [
     "#FF5473",
     "#FFBB54",
@@ -15,31 +14,36 @@ const initialState = {
     "#C484FF",
     "#E988DF",
   ],
-  messageList:[],
-  message:"",
+  messageList: [],
+  message: "",
   colorPicker: false,
-  login:{
-    email:"",
-    pwd:""
+  login: {
+    email: "",
+    pwd: "",
   },
-  user:{
-    _id:null,
-    location:null,
-    socket:null,
-    room:null,
-    strikes:0,
-    displayName:null,
-    age:null,
-    gender:null,
-    email:null,
-    __v: null
+  user: {
+    color: "black",
+    _id: null,
+    location: {
+      type: "Point",
+      coordinates: [0, 0],
+    },
+    socket: null,
+    room: null,
+    strikes: 0,
+    displayName: null,
+    age: null,
+    gender: null,
+    email: null,
+    __v: null,
   },
   auth_cookie: null,
-  menu:false
+  menu: false,
+  nearby: [],
 };
 const STORE = createStore(
   REDUCER,
   initialState,
   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 );
-export { STORE };
+export { STORE, initialState };

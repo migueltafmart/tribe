@@ -3,7 +3,7 @@ import { STORE } from "../../../Redux/store";
 import { setColor, removeColor, giveBackColor, setColorPicker } from "../../../Redux/actions";
 import "./ColorPicker.scss";
 const ColorPicker = () => {
-  const color = STORE.getState().color;
+  const color = STORE.getState().user.color;
 
   const pickColor = (e) => {
     if (color !== "black") {

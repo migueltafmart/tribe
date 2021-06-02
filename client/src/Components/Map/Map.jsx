@@ -5,23 +5,29 @@ import { STORE } from "../../Redux/store";
 import { setLocation } from "../../Redux/actions";
 const Map = () => {
   const usersNearBy = STORE.getState().nearby;
+
   mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+
   useEffect(() => {
     navigator.geolocation.watchPosition(({ coords }) => {
-      const currentLocation = {
-        type: "Point",
-        coordinates: [coords.longitude, coords.latitude],
-      };
-      STORE.dispatch(setLocation(currentLocation));
+      STORE.dispatch(
+        setLocation({
+          type: "Point",
+          coordinates: [coords.longitude, coords.latitude],
+        })
+      );
+
       const map = new mapboxgl.Map({
         container: "map",
         style: "mapbox://styles/mapbox/streets-v11",
         center: STORE.getState().user.location.coordinates,
         zoom: 17.5,
       });
+
       if (document.querySelectorAll("div.Marker")) {
         document.querySelectorAll("div.Marker").forEach((el) => el.remove());
       }
+
       const Marker = document.createElement("div");
       Marker.classList.add("Marker");
       new mapboxgl.Marker(Marker)
@@ -30,6 +36,7 @@ const Map = () => {
       if (usersNearBy.length > 0) {
         usersNearBy.forEach(({ color, location }) => {
           if (color !== "black") {
+            console.log("Gotta paint a marker!");
             const Marker = document.createElement("div");
             Marker.classList.add("Marker");
             Marker.style.background = color;
@@ -40,9 +47,9 @@ const Map = () => {
         });
       }
     });
-
     // eslint-disable-next-line
   }, [usersNearBy]);
+
   window.oncontextmenu = function (event) {
     event.preventDefault();
     event.stopPropagation();

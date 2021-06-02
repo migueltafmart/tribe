@@ -11,8 +11,9 @@ const express = require("express"),
   io = require("socket.io")(httpServer),
   dotenv = require("dotenv"),
   morgan = require("morgan"),
-  chalk = require("chalk");
-cookieParser = require("cookie-parser");
+  chalk = require("chalk"),
+  db = require("./model/db"),
+  cookieParser = require("cookie-parser");
 dotenv.config();
 
 const PORT = process.env.PORT || 8080;
@@ -36,14 +37,23 @@ app.use(routes);
 /* app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname + "/public/index.html"));
 }); */
+
 //* Socket.io
 io.on("connection", (socket) => {
-  //? Get all users near me (100m)
-  //? usersNearBy.map(user =>{
-  //?   socket.on("chat message",(msg)=>{
-  //?     socket.broadcast.to(user.socket).emit("chat message", msg)
-  //?   })
-  //?})
+  socket.on("self connected", async (user) => {
+  //* Update the database with the info coming from the client
+  console.log("User connected:", user)
+   let res = await db.updateUser("socket", { socket: socket.id, _id: user._id });
+  //*Get all users nearby
+  //let nearby = await db.getUsersNearBy()
+    console.log(res);
+  });
+  socket.on("nearby", (payload) => {
+    
+  }
+  )
+
+  socket.broadcast.emit("user connected", socket.id);
   console.log(
     "user connected using socket:",
     socket.id,

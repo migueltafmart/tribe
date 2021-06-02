@@ -112,6 +112,7 @@ exports.updateUser = async (method, { _id, socket, location, color }) => {
             socket,
           ],
         });
+        console.log("done");
         return {
           _id: user._id,
           location: user.location,
@@ -144,7 +145,7 @@ exports.updateUser = async (method, { _id, socket, location, color }) => {
 
 exports.getUsersNearBy = async (_id, location) => {
   const result = await User.find({
-    _id: { $ne: _id },
+    socket: _id,
     location: {
       $near: {
         $maxDistance: 100,

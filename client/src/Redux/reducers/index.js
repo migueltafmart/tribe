@@ -80,10 +80,23 @@ const REDUCER = (state, action) => {
         menu: action.payload.menu,
       };
     case "USER_ENTERED":
-      return {
-        ...state,
-        nearby: [...state.nearby, action.payload.nearby],
-      };
+      if (state.nearby.length > 0) {
+        return {
+          ...state,
+          nearby: [
+            ...state.nearby.filter(
+              (user) => user.user.id !== action.payload.nearby.user.id
+            ),
+            action.payload.nearby,
+          ],
+        };
+      } else {
+        return {
+          ...state,
+          nearby: [action.payload.nearby],
+        };
+      }
+
     case "USER_LEFT":
       return {
         ...state,

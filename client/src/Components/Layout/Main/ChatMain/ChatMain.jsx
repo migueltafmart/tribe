@@ -1,10 +1,12 @@
 import React, { useEffect, useRef } from "react";
-import { sendMessage, setSocket } from "../../../../Redux/actions";
+import { sendMessage, setSocket, userNear, setLocation } from "../../../../Redux/actions";
 import { STORE } from "../../../../Redux/store";
 import { socket } from "../../../../service/socket";
 import InputForm from "../../../InputForm/InputForm";
+import Map from "../../../Map/Map"
 import Mssg from "../../../Mssg/Mssg";
 import "./ChatMain.scss";
+import axios from "axios";
 
 const ChatMain = () => {
   const messageList = STORE.getState().messageList;
@@ -12,15 +14,59 @@ const ChatMain = () => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    socket.open()
-    socket.on("connect", () => {
+    //* Hasta que no se tenga la ubicación disponible no se puede hacer nada más
+    navigator.geolocation.getCurrentPosition(({coords}) =>{
+      STORE.dispatch(
+        setLocation({
+          type: "Point",
+          coordinates: [coords.longitude, coords.latitude],
+        })
+      );
 
+    }, (err) => console.log("Your location is not available at this moment", err))
+    //! Old code
+    const currentLocation = STORE.getState().user.location;
+    socket.open();
+    socket.on("connect", () => {
+      socket.emit("self connected", STORE.getState().user);
       STORE.dispatch(setSocket(socket));
     });
+
+    socket.on("user connected", (id) => {
+      console.log("Someone new! Socket: ", id);
+      socket.emit("nearby", {...STORE.getState().user, socket: id})
+      if (currentLocation && STORE.getState().user.socket && color) {
+        axios
+          .get(
+            `/api/nearby?i=${id}&long=${
+              STORE.getState().user.location.coordinates[0]
+            }&latt=${STORE.getState().user.location.coordinates[1]}`,
+            {
+              withCredentials: true,
+              proxy: {
+                host: "192.168.1.19",
+                port: 8080,
+              },
+            }
+          )
+          .then((response) => {
+            console.log("Users near me: ", response.data);
+            STORE.dispatch(userNear(...response.data));
+          });
+      }
+    });
+
     socket.on("chat message", (mssg) => {
       STORE.dispatch(sendMessage(mssg, STORE.getState().messageList));
     });
-    return () => socket.close()
+    //* Cuando un usuario cerca se loguee en el servidor
+
+    return () => {
+      //*Remove users from nearby for other users
+
+      socket.close();
+    };
+    //eslint-disable-next-line
   }, []);
 
   useEffect(() => {
@@ -50,6 +96,7 @@ const ChatMain = () => {
         </div>
       </main>
       <InputForm socket={socket} />
+      <Map />
     </>
   );
 };

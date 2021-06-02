@@ -15,7 +15,7 @@ exports.nearby = async (req, res) => {
       res.status(status).json(result);
     }
   } else {
-    res.status(400);
+    res.sendStatus(400);
   }
 };
 

@@ -31,7 +31,11 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (currentLocation.coordinates !== [0, 0] && STORE.getState().user._id) {
+    if (
+      currentLocation !== undefined &&
+      currentLocation.coordinates !== [0, 0] &&
+      STORE.getState().user._id
+    ) {
       const body = {
         _id: STORE.getState().user._id,
         location: currentLocation,
@@ -81,6 +85,7 @@ function App() {
         .catch((err) => console.log(err));
     }
   }, [currentColor]);
+
   return (
     <>
       <Switch>
@@ -92,7 +97,11 @@ function App() {
           )}
         </Route>
         <Route path="/login" exact>
-          {!STORE.getState().auth_cookie ? <LoginPage /> : <Redirect to="/" />}
+          {!STORE.getState().auth_cookie ?( 
+            <LoginPage />
+          ) : (
+            <Redirect to="/" />
+          )}
         </Route>
       </Switch>
     </>

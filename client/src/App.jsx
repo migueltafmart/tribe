@@ -16,7 +16,7 @@ function App() {
         .get("/api/reload", {
           withCredentials: true,
           proxy: {
-            host: "192.168.1.19",
+            host: "localhost",
             port: 8080,
           },
         })
@@ -37,7 +37,7 @@ function App() {
         .post("/api/update", body, {
           withCredentials: true,
           proxy: {
-            host: "192.168.1.19",
+            host: "localhost",
             port: 8080,
           },
         })

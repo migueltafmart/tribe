@@ -16,10 +16,10 @@ const LoginMain = () => {
     const body = STORE.getState().login;
     if (body.email && body.pwd) {
       axios
-        .post("/api/login", body, {
+        .post("http://localhost:8080/api/login", body, {
           withCredentials: true,
           proxy: {
-            host: "192.168.1.19",
+            host: "localhost",
             port: 8080,
           },
         })

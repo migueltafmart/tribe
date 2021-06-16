@@ -11,6 +11,7 @@ exports.signUp = async (req, res) => {
       response = "Something went wrong";
     } finally {
       if (typeof response !== "object") {
+        console.log("hello")
         res.status(status).json(response);
       } else {
         const token = jwt.sign(
